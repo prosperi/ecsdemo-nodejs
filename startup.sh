@@ -94,6 +94,8 @@ if [[ -z ${zone} ]]; then
   done
 fi
 
+echo "aws region"
+echo $AWS_REGION
 export CODE_HASH="$(cat code_hash.txt)"
 export IP
 export AZ="${IP} in AZ-${zone}"
