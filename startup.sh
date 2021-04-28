@@ -80,8 +80,9 @@ fi
 if [[ -z ${zone} ]]; then
   ip_addr=$(curl -m2 -s ${ECS_CONTAINER_METADATA_URI} | jq -r '.Networks[].IPv4Addresses[]')
   declare -a subnets=( $(aws ec2 describe-subnets | jq -r .Subnets[].CidrBlock| sed ':a;N;$!ba;s/\n/ /g') )
-  echo "Here we go...."
-  echo $subnets
+  subn = $(aws ec2 describe-subnets)
+  echo "hmmm....."
+  echo $subn
   for sub in "${subnets[@]}"; do
     echo "Here is subnet"
     echo $sub
