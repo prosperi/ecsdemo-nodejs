@@ -65,11 +65,11 @@ if [[ "${orchestrator}" == 'kubernetes' ]]; then
     else
         zone=unknown
     fi
-fi 
+fi
 
 if [[ ${orchestrator} == 'unknown' ]]; then
   zone=$(curl -m2 -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.availabilityZone' | grep -o .$)
-fi 
+fi
 
 # Am I on ec2 instances?
 if [[ ${zone} == "unknown" ]]; then
@@ -80,8 +80,14 @@ fi
 if [[ -z ${zone} ]]; then
   ip_addr=$(curl -m2 -s ${ECS_CONTAINER_METADATA_URI} | jq -r '.Networks[].IPv4Addresses[]')
   declare -a subnets=( $(aws ec2 describe-subnets | jq -r .Subnets[].CidrBlock| sed ':a;N;$!ba;s/\n/ /g') )
+  echo "Here we go...."
+  echo $subnets
   for sub in "${subnets[@]}"; do
+    echo "Here is subnet"
+    echo $sub
     ip_match=$(echo -e "from netaddr import IPNetwork, IPAddress\nif IPAddress('$ip_addr') in IPNetwork('$sub'):\n    print('true')" | python3)
+    echo "sub match..."
+    echo $ip_match
     if [[ $ip_match == "true" ]];then
       zone=$(aws ec2 describe-subnets | jq -r --arg sub "$sub" '.Subnets[] | select(.CidrBlock==$sub) | .AvailabilityZone' | grep -o .$)
     fi
